@@ -7,12 +7,12 @@ module Api
       end
 
       def show
-        users = Users.find(params[:id])
+        users = User.find(params[:id])
         render json: {status: 'SUCCESS', message:'Loaded Users', data:users},status: :ok
        end
 
        def create
-        users = Users.new(users_params)
+        users = User.new(users_params)
 
         if users.save
           render json: {status: 'SUCCESS', message:'Saved user', data:users},status: :ok
@@ -22,17 +22,17 @@ module Api
       end
 
       def destroy
-        users = Users.find(params[:id])
-        user.destroy
+        users = User.find(params[:id])
+        users.destroy
         render json: {status: 'SUCCESS', message:'Deleted user', data:users},status: :ok
       end
 
       def update
-        users = Users.find(params[:id])
-        if user.update_attributes(user_params)
-          render json: {status: 'SUCCESS', message:'Updated user', data:user},status: :ok
+        users = User.find(params[:id])
+        if users.update_attributes(user_params)
+          render json: {status: 'SUCCESS', message:'Updated user', data:users},status: :ok
         else
-          render json: {status: 'ERROR', message:'User not updated', data:user.errors},status: :unprocessable_entity
+          render json: {status: 'ERROR', message:'User not updated', data:users.errors},status: :unprocessable_entity
         end
       end
 
@@ -42,9 +42,13 @@ module Api
         file_data = params[:uploaded_file]
         csv_text = File.read(file_data)
         csv = CSV.parse(csv_text, :headers => true)
-        csv.each do |row|
-          Moulding.create!(row.to_hash)
+
+        csv.uniq.each do |elem|
+          puts "#{elem}\t#{csv.count(elem)}"
         end
+
+        render json: {status: 'SUCCESS', message:'Updated user', data:csv_text},status: :ok
+
       end
 
       private
