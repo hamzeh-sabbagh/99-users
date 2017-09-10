@@ -37,17 +37,23 @@ module Api
       end
 
       def import
-        require 'csv'    
+        require 'csv'
 
-        file_data = params[:uploaded_file]
-        csv_text = File.read(file_data)
-        csv = CSV.parse(csv_text, :headers => true)
+        # file_data = params[:uploaded_file]
+        csv = CSV.parse(params.keys[0], :headers => true)
 
-        csv.uniq.each do |elem|
-          puts "#{elem}\t#{csv.count(elem)}"
+        first_names_count = Hash.new(0)
+        csv.each do |elem|
+          first_names_count[elem[1]] += 1
         end
 
-        render json: {status: 'SUCCESS', message:'Updated user', data:csv_text},status: :ok
+        first_names_count.each do |name, count|
+          if count == 1
+            first_names_count.delete(name)
+          end
+        end
+
+        render json: {status: 'SUCCESS', message:'Uploaded file', data:first_names_count},status: :ok
 
       end
 
